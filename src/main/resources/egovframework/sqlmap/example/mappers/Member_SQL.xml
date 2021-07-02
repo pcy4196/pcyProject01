@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.member.service.impl.MemberMapper">
+	
+	<!-- 회원 등록하기 -->
+	<update id="insertMeberNew" parameterType="egovMap">
+		INSERT INTO WHMEMBER ( 	ID, 
+								NAME, 
+								PASSWD,
+								PHONENUMBER, 
+								ZIPCODE, 
+								ADDRESS1,
+								ADDRESS2 ) 
+								VALUES
+							(	#{id}, 
+							 	#{name}, 
+							 	#{passwd}, 
+							 	#{phonenumber},
+							 	#{zipcode},
+                        		#{address1},
+                        		#{address2} )
+	</update>
+	
+	<!-- 비밀번호 체크  -->
+	<select id="selectMeberCheck" parameterType="String" resultType="String">
+		SELECT PASSWD FROM WHMEMBER
+		WHERE ID = #{_parameter}			
+	</select>	
+	
+	<!-- 아이디 중복 체크  -->
+	<select id="selectMemberIdCheck" parameterType="String" resultType="int">
+		SELECT COUNT(*) FROM WHMEMBER
+		WHERE ID = #{_parameter}			
+	</select>	
+	
+	<!-- 한명 회원정보 확인  -->
+	<select id="selectMemberInfo" parameterType="String" resultType="egovMap">
+		SELECT ID, NAME, PASSWD, PHONENUMBER, ZIPCODE, ADDRESS1, ADDRESS2 FROM WHMEMBER
+		WHERE ID = #{_parameter}		
+	</select>
+	
+	<!-- 회원  정보 수정하기 -->
+	<update id="updateInfoMember" parameterType="egovMap">
+		UPDATE WHMEMBER SET 
+							NAME = #{name} ,
+							PASSWD = #{passwd} ,
+							PHONENUMBER = #{phonenumber} ,
+							ZIPCODE = #{zipcode} , 
+							ADDRESS1 = #{address1} ,
+							ADDRESS2 = #{address2}
+							WHERE ID = #{id}
+	</update>
+	
+	<!-- 회원  정보 삭제하기 -->
+	<delete id="deleteMemberOne" parameterType="String">
+		DELETE FROM WHMEMBER 
+						WHERE ID = #{_parameter}
+	</delete>
+	
+	<!-- 회원목록 확인  -->
+	<select id="selectMemberInfoList" resultType="egovMap">
+		SELECT 	ID,
+				NAME,				
+				PHONENUMBER				
+		FROM WHMEMBER				
+	</select>
+	
+	<!-- 한명 회원정보 확인  -->
+	<select id="selectMemberInfoOne" parameterType="String" resultType="egovMap">
+		SELECT ID, NAME, PASSWD, PHONENUMBER, ZIPCODE, ADDRESS1, ADDRESS2 FROM WHMEMBER
+		WHERE ID = #{_parameter}		
+	</select>
+</mapper>

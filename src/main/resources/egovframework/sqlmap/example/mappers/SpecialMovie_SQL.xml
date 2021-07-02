@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.specialMovie.service.impl.SpecialMovieMapper">
+
+	<!-- SM 테이블 조회 -->
+	<select id="selectSpecialMoviePagingList" parameterType="pagingVO" resultType="egovMap">
+		SELECT a.*
+    		FROM (
+    			SELECT 	a.*,
+					ROWNUM rnum,				
+					FLOOR((ROWNUM - 1)/#{rows} + 1) pageNumber
+					FROM (
+         				SELECT
+							TABLENO, 
+							TITLE, 
+							TO_CHAR(TABLEDATE, 'YYYY-MM-DD') TABLEDATE, 
+							TABLEVIEW 
+							FROM WHSMTABLE
+							ORDER BY TABLENO DESC
+					) a
+    		) a
+    	WHERE a.pageNumber = #{page}
+	</select>
+	
+	<!-- SM 테이블 토탈 rows 조회 -->
+	<select id="selectSpecialMoviePagingListCnt" parameterType="pagingVO" resultType="egovMap">
+		SELECT 	count(*) TOTAL_CNT,
+				CEIL( count(*) / #{rows} ) TOTAL_PAGE
+				FROM WHSMTABLE
+	</select>
+	
+	<!-- SM 테이블 조회 -->
+	<select id="selectSpecialMovieList" resultType="egovMap">
+		SELECT 	TABLENO, 
+				TITLE, 
+				TO_CHAR(TABLEDATE, 'YYYY-MM-DD') TABLEDATE, 
+				TABLEVIEW 
+				FROM WHSMTABLE
+				ORDER BY TABLENO DESC
+	</select>
+	
+	<!-- SM 테이블 조회(ONE) -->
+	<select id="selectSpecialMovieOne" parameterType="map" resultType="egovMap">
+		SELECT 	TABLENO, 
+				TITLE, 
+				TO_CHAR(TABLEDATE, 'YYYY-MM-DD') TABLEDATE, 
+				TABLEVIEW,
+				MOVIE,
+				CONTENT
+				FROM WHSMTABLE				
+		<if test='tableNo != null and tableNo != ""'>
+				WHERE TABLENO = #{tableNo}
+		</if>
+	</select>
+	
+	<!-- 글 조회수 -->
+	<update id="updateSpecialMovieViewCnt" parameterType="map">
+		UPDATE WHSMTABLE SET
+			              TABLEVIEW = TABLEVIEW + 1
+              			WHERE TABLENO = #{tableNo}
+	</update>
+	
+	<!-- 글 등록하기 -->
+	<update id="insertSpecialMovieTable" parameterType="egovMap">
+		<selectKey keyProperty="tableno" resultType="int" order="BEFORE">
+			SELECT NVL(MAX(TABLENO),0)+1 AS tableno FROM WHSMTABLE
+		</selectKey>	
+		INSERT INTO WHSMTABLE ( 	TABLENO, 
+									TITLE, 
+									TABLEDATE,								
+									CONTENT, 
+									MOVIE ) 
+									VALUES
+								(	#{tableno}, 
+								 	#{title}, 
+								 	SYSDATE, 
+								 	#{content},							 	
+	                        		#{movie} )
+	</update>
+	
+	<!-- 글 삭제하기 -->
+	<delete id="deleteSpecialMovieOne" parameterType="egovMap">
+		DELETE FROM SMTABLE 
+						WHERE WHSMTABLE = #{tableno}
+	</delete>
+	
+	
+</mapper>

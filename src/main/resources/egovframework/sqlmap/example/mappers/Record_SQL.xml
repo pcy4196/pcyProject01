@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.record.service.impl.RecordMapper">
+	
+	<!-- GSW 역대 전적 조회 -->
+	<select id="selectRecordTeamList" resultType="egovMap">
+		SELECT 	SEASON, 
+					WINS, 
+					LOSSES,
+					ROUND((WINS / (WINS + LOSSES))*100,2) AS WINSS, 
+					RESULT 
+		FROM WHGSW_RECORDS 
+		ORDER BY SEASON DESC
+	</select>
+
+</mapper>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.main.service.impl.MainMapper">
+	
+	<!-- 메인 메뉴 조회 depth1 -->
+	<select id ="selectReviewsList" resultType="egovMap">
+      SELECT 	NO, 
+      			ICON, 
+      			WNAME, 
+      			CONTENT 
+      		FROM WHREVIEWS
+      		WHERE ROWNUM <![CDATA[ <= ]]> 10 
+      		ORDER BY NO DESC
+	</select>
+	
+	<select id="selectReviewsPagingList" parameterType="PaginReviewVO" resultType="egovMap">
+		SELECT  a.*
+		      FROM  (
+		      SELECT  a.*,
+		                ROWNUM rnum,
+		                FLOOR((ROWNUM - 1) /#{rows} + 1) pageNumber
+		          FROM  (
+		          SELECT NO,
+		       ICON,
+		       WNAME,
+		       CONTENT
+		  FROM WHREVIEWS
+		  ORDER BY NO DESC
+		  ) a
+		) a
+		     WHERE  a.pageNumber = #{page}
+		  ORDER BY  a.rnum
+	</select>
+	
+	<select id="selectReviewsListCnt" parameterType="PaginReviewVO" resultType="egovMap">
+		SELECT  count(*) TOTAL_TOT_CNT
+		          , CEIL(count(*) / #{rows}) TOTAL_PAGE
+		  FROM WHREVIEWS
+		  ORDER BY NO DESC
+	</select>
+	
+	
+	
+	<update id="insertReviewsOne" parameterType="egovMap">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE">
+			SELECT NVL(MAX(NO),0)+1 AS no FROM WHREVIEWS
+		</selectKey>	
+		INSERT INTO WHREVIEWS ( 	NO, 
+									ICON, 
+									WNAME,								
+									CONTENT, 
+									PASSWD ) 
+									VALUES
+								(	#{no}, 
+								 	#{iconImg}, 
+								 	#{wname},
+								 	#{content},							 	
+	                        		#{passwd} )
+	</update>
+	
+	<!-- 비밀번호 체크  -->
+	<select id="selectReviewsPasswdOne" parameterType="String" resultType="String">
+		SELECT PASSWD FROM WHREVIEWS
+		WHERE NO = #{_parameter}			
+	</select>
+	
+	<!-- 글 수정하기 -->
+	<update id="updatetReviewsOne" parameterType="egovMap">
+		UPDATE WHREVIEWS SET
+				              ICON = #{iconImg}, 
+				              CONTENT = #{content}, 
+				              WNAME = #{wname}, 
+				              PASSWD = #{passwd}
+	              			WHERE NO = #{no}
+	</update>
+	
+	<!-- 글 삭제하기 -->
+	<delete id="deleteReviewsOne" parameterType="String">
+		DELETE FROM WHREVIEWS 
+						WHERE NO = #{_parameter}
+	</delete>
+		
+</mapper>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.qnaTable.service.impl.QnaTableMapper">
+	
+	<!-- Q&A 테이블 조회 -->
+	<select id="selectQnaTableList" resultType="egovMap">
+		SELECT IDX, NAME, TITLE, CONTENT, GRPNO, INDENT FROM WHQNATABLE
+		ORDER BY GRPNO DESC, ANSNUM ASC
+	</select>
+	
+	<!-- 글 등록하기 -->
+	<update id="insertQnaTableList" parameterType="egovMap">
+		<selectKey keyProperty="idx" resultType="int" order="BEFORE">
+			SELECT NVL(MAX(IDX),0)+1 AS idx FROM WHQNATABLE
+		</selectKey>	
+		INSERT INTO WHQNATABLE ( 	IDX, 
+									NAME, 
+									TITLE,
+									CONTENT, 
+									GRPNO, 
+									PASSWD ) 
+									VALUES
+								(	#{idx}, 
+								 	#{name}, 
+								 	#{title}, 
+								 	#{content},
+								 	#{idx},
+	                        		#{passwd} )
+	</update>
+	
+	<!-- Q&A 테이블 관련 비밀번호 조회 -->
+	<select id="selectCheckPw" parameterType="egovMap" resultType="int">
+		SELECT COUNT(*) AS cnt FROM WHQNATABLE
+		WHERE 1=1
+		<if test='idx != null and idx != "" and passwd != null and passwd != ""'>
+			AND IDX = #{idx} AND PASSWD = #{passwd}
+		</if>		
+	</select>
+	
+	<!-- Q&A 테이블 하나만 조회 -->
+	<select id="selectQnaTableOne" parameterType="egovMap" resultType="egovMap">
+		SELECT IDX,NAME,TITLE,CONTENT,PASSWD FROM WHQNATABLE
+		WHERE 1=1
+		<if test='idx != null and idx != ""'>
+			AND IDX = #{idx}
+		</if>		
+	</select>
+	
+	<!-- 글 수정하기 -->
+	<update id="updateQnaTableList" parameterType="egovMap">
+		UPDATE WHQNATABLE SET
+				              NAME = #{name}, 
+				              TITLE = #{title}, 
+				              CONTENT = #{content}, 
+				              PASSWD = #{passwd}
+	              			WHERE IDX = #{idx}
+	</update>
+	
+	<!-- 글 삭제하기 -->
+	<delete id="delteQnaTableOne" parameterType="egovMap">
+		DELETE FROM WHQNATABLE 
+						WHERE IDX = #{idx}
+	</delete>
+	
+	<!-- 모든 컬럼 명 조회하는 쿼리문 -->
+	<select id="selectQnaTableAllCol" parameterType="egovMap" resultType="egovMap">
+		SELECT * FROM WHQNATABLE
+		WHERE 1=1
+		<if test='idx != null and idx != ""'>
+			AND IDX = #{idx}
+		</if>		
+	</select>
+	
+	<update id="updateQnaTableAnsnum" parameterType="egovMap">
+		UPDATE WHQNATABLE SET
+			            ANSNUM = ANSNUM + 1
+              			WHERE GRPNO = #{grpno} AND ANSNUM > #{ansnum}
+	</update>
+	
+	<!-- 글 등록하기 -->
+	<update id="insertQnaTableReply" parameterType="egovMap">
+		<selectKey keyProperty="idx" resultType="int" order="BEFORE">
+			SELECT NVL(MAX(IDX),0)+1 AS idx FROM WHQNATABLE
+		</selectKey>	
+		INSERT INTO WHQNATABLE ( 	IDX, 
+									NAME, 
+									TITLE,
+									CONTENT, 
+									GRPNO,
+									INDENT,
+									ANSNUM, 
+									PASSWD ) 
+									VALUES
+								(	#{idx}, 
+								 	#{name}, 
+								 	#{title}, 
+								 	#{content},
+								 	#{grpno},
+								 	#{indent},
+								 	#{ansnum}, 
+								 	#{passwd} )               
+	</update>
+</mapper>

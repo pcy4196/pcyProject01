@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.playerProfile.service.impl.PlayerProfileMapper">
+	
+	<!-- GSW Player Profile -->
+	<select id="selectPlayerProfileList" resultType="egovMap">
+		SELECT 	ID, 
+				NAME, 
+				FNAME, 
+				BIRTHDAY, 
+				SCHOOL, 
+				BODY, 
+				POSITION, 
+				AWARD,
+				BNUMBER
+				FROM 	WHGSWPP
+	</select>
+	
+	<!-- GSW Player YouTube Url -->
+	<select id="selectYouTubeUrlOne" parameterType="String" resultType="String">
+		SELECT 	VIDEO
+				FROM 	WHGSWPP
+		<if test='_parameter != null and _parameter != ""'>
+			WHERE ID = #{_parameter}
+		</if>
+	</select>
+
+</mapper>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.gallery.service.impl.GalleryMapper">
+	
+	<!-- Gallery List 조회 -->
+	<select id ="selectGalleryList" resultType="egovMap">
+      SELECT 	TABLENO, 
+      			TITLE, 
+      			FNAME 
+      			FROM WHGALLERY
+      			ORDER BY TABLENO DESC
+	</select>
+	
+	<!-- Gallery 테이블 조회 (페이징) -->
+	<select id="selectGalleryPagingList" parameterType="PagingGalleryVO" resultType="egovMap">
+		SELECT a.*
+    		FROM (
+    			SELECT 	a.*,
+					ROWNUM rnum,				
+					FLOOR((ROWNUM - 1)/#{rows} + 1) pageNumber
+					FROM (
+         				SELECT
+							TABLENO, 
+							TITLE, 
+							FNAME						
+							FROM WHGALLERY
+							ORDER BY TABLENO DESC
+					) a
+    		) a
+    	WHERE a.pageNumber = #{page}
+	</select>
+	
+	<!-- Gallery 테이블 토탈 rows 조회 -->
+	<select id="selectGalleryPagingListCnt" parameterType="PagingGalleryVO" resultType="egovMap">
+		SELECT 	count(*) TOTAL_CNT,
+				CEIL( count(*) / #{rows} ) TOTAL_PAGE
+				FROM WHGALLERY
+	</select>
+	
+	<select id ="selectGalleryContent" parameterType="String" resultType="egovMap">
+      SELECT 	TABLENO, 
+      			WNAME,      			
+      			TITLE, 
+      			TO_CHAR(TABLEDATE, 'YYYY-MM-DD') as TABLEDATE,
+      			FNAME,
+      			VIEWCNT,
+      			CONTENT      		
+      			FROM WHGALLERY
+      			<if test="_parameter != null and _parameter != ''">
+      				WHERE TABLENO = #{_parameter}
+      			</if>
+	</select>
+	
+	<!-- 글 등록하기 -->
+	<update id="insertGalleryOne" parameterType="egovMap">
+		<selectKey keyProperty="tableno" resultType="int" order="BEFORE">
+			SELECT NVL(MAX(TABLENO),0)+1 AS tableno FROM WHGALLERY
+		</selectKey>	
+		INSERT INTO WHGALLERY ( 	TABLENO, 
+									WNAME, 
+									TABLEDATE,
+									TITLE, 
+									FNAME, 
+									VIEWCNT,
+									CONTENT ) 
+									VALUES
+								(	#{tableno}, 
+								 	#{wname}, 
+								 	SYSDATE, 
+								 	#{title},
+								 	#{fname},
+								 	0,
+								 	#{content} )
+	</update>
+	
+	<!-- 글 조회수 +1 -->
+	<update id="updateGalleryContent" parameterType="String">
+		UPDATE WHGALLERY SET
+			              VIEWCNT = VIEWCNT + 1
+              			WHERE TABLENO = #{_parameter}
+	</update>
+	 
+	<!-- 글 수정하기 -->
+	<update id="updateGalleryOne" parameterType="egovMap">
+		UPDATE WHGALLERY SET
+				              TITLE = #{title}, 
+				              CONTENT = #{content}, 
+				              TABLEDATE = SYSDATE, 
+				              FNAME = #{fname}
+	              			WHERE TABLENO = #{tableno}
+	</update>
+	
+	<!-- 글 삭제하기 -->
+	<delete id="deleteGalleryOne" parameterType="egovMap">
+		DELETE FROM WHGALLERY 
+						WHERE TABLENO = #{tableno}
+	</delete>
+	
+	
+</mapper>

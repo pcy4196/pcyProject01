@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.fanPage.service.impl.FanPageMapper">
+	
+	<!-- FanPage 테이블 조회 (페이징) -->
+	<select id="selectFanPagePagingList" parameterType="PagingFanPageVO" resultType="egovMap">
+		SELECT a.*
+    		FROM (
+    			SELECT 	a.*,
+					ROWNUM rnum,				
+					FLOOR((ROWNUM - 1)/#{rows} + 1) pageNumber
+					FROM (
+         				SELECT
+							W.NO NO, 
+							W.WNAME WNAME, 
+							W.TITLE TITLE,
+							W.VIEWCNT VIEWCNT,  
+             				(SELECT COUNT(*) FROM WHREPLY WHERE NO = W.NO) RECNT,				
+							TO_CHAR(W.WDATE, 'YYYY-MM-DD') WDATE						
+								FROM WHFANPAGE W
+								ORDER BY W.NO DESC
+					) a
+    		) a
+    	WHERE a.pageNumber = #{page}
+	</select>
+	
+	<!-- FanPage 테이블 토탈 rows 조회 -->
+	<select id="selectFanPagePagingListCnt" parameterType="PagingFanPageVO" resultType="egovMap">
+		SELECT 	count(*) TOTAL_CNT,
+				CEIL( count(*) / #{rows} ) TOTAL_PAGE
+				FROM WHFANPAGE
+	</select>
+	
+	<!-- 글 조회수 +1 -->
+	<update id="updateFanPageViewCnt" parameterType="String">
+		UPDATE WHFANPAGE SET
+			              VIEWCNT = VIEWCNT + 1
+              			WHERE NO = #{_parameter}
+	</update>
+	
+	<select id ="selectFanPageData" parameterType="String" resultType="egovMap">
+      SELECT 	NO, 
+      			WNAME,      			
+      			TITLE, 
+      			TO_CHAR(WDATE, 'YYYY-MM-DD') as WDATE,      			
+      			VIEWCNT,
+      			CONTENT      		
+      			FROM WHFANPAGE
+      			<if test="_parameter != null and _parameter != ''">
+      				WHERE NO = #{_parameter}
+      			</if>
+	</select>
+	
+	<!-- 글 등록하기 -->
+	<update id="insertFanPageData" parameterType="egovMap">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE">
+			SELECT NVL(MAX(NO),0)+1 AS no FROM WHFANPAGE
+		</selectKey>	
+		INSERT INTO WHFANPAGE ( 	NO, 
+									WNAME, 
+									TITLE,
+									VIEWCNT,
+									CONTENT, 
+									WDATE ) 
+									VALUES
+								(	#{no}, 
+								 	#{wname}, 
+								 	#{title},
+								 	0,
+								 	#{content},
+								 	SYSDATE )
+								 	
+	</update>
+	
+	
+	 
+	<!-- 글 수정하기 -->
+	<update id="updateFanPageData" parameterType="egovMap">
+		UPDATE WHFANPAGE SET
+				              TITLE = #{title}, 
+				              CONTENT = #{content}, 
+				              WDATE = SYSDATE				             
+	              			WHERE NO = #{no}
+	</update>
+	
+	<!-- 글 삭제하기 -->
+	<delete id="deleteFanPageData" parameterType="String">
+		DELETE FROM WHFANPAGE 
+						WHERE NO = #{_parameter}
+	</delete>
+	
+	<!-- FanPage reply 조회 (페이징) -->
+	<select id="selectReplyList" parameterType="egovMap" resultType="egovMap">
+		SELECT a.*
+    		FROM (
+    			SELECT 	a.*,
+					ROWNUM r,				
+					FLOOR((ROWNUM - 1)/#{rows} + 1) pageNumber
+					FROM (
+         				SELECT
+							RNUM, 
+							WNAME, 
+							NO,
+							CONTENT					
+							FROM WHREPLY
+							WHERE NO = ${no}
+							ORDER BY RNUM DESC
+					) a
+    		) a
+    	WHERE a.pageNumber = #{rpage}
+	</select>
+	
+	
+	<!-- FanPage reply 테이블 토탈 rows 조회 -->
+	<select id="selectReplyListCnt" parameterType="egovMap" resultType="egovMap">
+		SELECT 	count(*) TOTAL_CNT,
+				CEIL( count(*) / #{rows} ) TOTAL_PAGE
+				FROM WHREPLY
+				WHERE NO = #{no}
+	</select>
+	
+	<!-- FanPage reply 등록하기 -->
+	<update id="insertReplyOne" parameterType="egovMap">
+		<selectKey keyProperty="rnum" resultType="int" order="BEFORE">
+			SELECT NVL(MAX(RNUM),0)+1 AS rnum FROM WHREPLY
+		</selectKey>	
+		INSERT INTO WHREPLY ( 	RNUM, 
+								WNAME, 
+								NO,
+								CONTENT	) 
+								VALUES
+							(	#{rnum}, 
+							 	#{wname}, 
+							 	#{no},								 	
+							 	#{content} )								 	
+	</update>
+	
+	<!-- FanPage reply 수정하기 -->
+	<update id="updateReplyOne" parameterType="egovMap">
+		UPDATE WHREPLY SET
+				              WNAME = #{wname},
+				              NO = #{no}, 
+				              CONTENT = #{content}				             			             
+	              			WHERE RNUM = #{rnum}
+	</update>
+	
+	<!-- FanPage reply 삭제하기 -->
+	<delete id="deleteReplyOne" parameterType="String">
+		DELETE FROM WHREPLY 
+						WHERE RNUM = #{_parameter}
+	</delete>
+	
+	<select id="total" resultType="int" parameterType="int">
+		select count(*) from WHREPLY
+		where no = #{no}
+	</select>
+	
+	
+</mapper>
