@@ -23,7 +23,7 @@
 </p>
 <div align=center> GSW Fan Site ERD </div> 
 
-1. MAIN PAGE
+2. MAIN PAGE
 <p align="center">
     <img src="https://user-images.githubusercontent.com/86548939/124361942-f9c5ca80-dc6c-11eb-8cf1-aa69a4ae656d.PNG" title="MAIN_PAGE" height="400px" width="700px">    
 </p>
